@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cash Count</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Cairo', sans-serif; }
+    </style>
+
+    <!-- React Libraries -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-gray-100 text-gray-900">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // --- 1. إعدادات الأمان (كلمة المرور) ---
+        // كلمة المرور الافتراضية هي 1234
+        const APP_PIN = "1234"; 
+
+        // --- أيقونات ---
+        const Icon = ({ name, size = 20, className }) => {
+            const iconRef = React.useRef(null);
+            React.useEffect(() => {
+                if (window.lucide) {
+                    window.lucide.createIcons({
+                        root: iconRef.current,
+                        name: name,
+                        attrs: { width: size, height: size, class: className }
+                    });
+                }
+            }, [name, size, className]);
+            return <i ref={iconRef} data-lucide={name} className={className}></i>;
+        };
+        
+        // تعريف الأيقونات
+        const Lock = (p) => <Icon name="lock" {...p} />;
+        const Unlock = (p) => <Icon name="unlock" {...p} />;
+        const Calculator = (p) => <Icon name="calculator" {...p} />;
+        const Wallet = (p) => <Icon name="wallet" {...p} />;
+        const RefreshCcw = (p) => <Icon name="refresh-ccw" {...p} />;
+        const Coins = (p) => <Icon name="coins" {...p} />;
+        const User = (p) => <Icon name="user" {...p} />;
+        const AlertTriangle = (p) => <Icon name="alert-triangle" {...p} />;
+        const Download = (p) => <Icon name="download" {...p} />;
+        const Upload = (p) => <Icon name="upload" {...p} />;
+        const FileSpreadsheet = (p) => <Icon name="file-spreadsheet" {...p} />;
+        const Save = (p) => <Icon name="save" {...p} />;
+        const Printer = (p) => <Icon name="printer" {...p} />;
+        const Trash2 = (p) => <Icon name="trash-2" {...p} />;
+        const Plus = (p) => <Icon name="plus" {...p} />;
+        const ArrowDownCircle = (p) => <Icon name="arrow-down-circle" {...p} />;
+        const ArrowUpCircle = (p) => <Icon name="arrow-up-circle" {...p} />;
+        const X = (p) => <Icon name="x" {...p} />;
+        const CheckCircle = (p) => <Icon name="check-circle" {...p} />;
+        const Eye = (p) => <Icon name="eye" {...p} />;
+
+        const { useState, useEffect, useRef } = React;
+
+        // --- الثوابت ---
+        const CURRENCIES = {
+            EGP: { name: 'جنيه مصري', symbol: 'EGP', denominations: [200, 100, 50, 20, 10, 5, 1, 0.5] },
+            USD: { name: 'دولار أمريكي', symbol: 'USD', denominations: [100, 50, 20, 10, 5, 2, 1] }, 
+            EUR: { name: 'يورو', symbol: 'EUR', denominations: [500, 200, 100, 50, 20, 10, 5] },
+            SAR: { name: 'ريال سعودي', symbol: 'SAR', denominations: [500, 100, 50, 10, 5, 1] },
+        };
+
+        const formatCurrency = (amount, currency = 'EGP') => new Intl.NumberFormat('en-US', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount) + ' ' + currency;
+        const formatNumber = (num) => (!num && num !== 0) ? '' : new Intl.NumberFormat('en-US').format(num);
+
+        // --- دالة الطباعة ---
+        const openPrintWindow = (data, tellerName) => {
+            const printWindow = window.open('', '_blank', 'width=900,height=800');
+            if (!printWindow) { alert("اسمح بالنوافذ المنبثقة للطباعة"); return; }
+            let title = "إيصال عملية Cash Count", typeLabel = "عميل (Customer)", typeColor = "#000";
+            if (data.type === 'SUPPLY') { title = "إيصال توريد نقدية"; typeLabel = "توريد للخزينة"; typeColor = "green"; }
+            else if (data.type === 'TRANSFER') { title = "إيصال تحويل نقدية"; typeLabel = "تحويل صادر"; typeColor = "orange"; }
+
+            const html = `<!DOCTYPE html><html dir="rtl" lang="ar"><head><title>طباعة #${data.id}</title>
+            <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+            <style>body{font-family:'Cairo',sans-serif;padding:40px;color:#000} .header{text-align:center;border-bottom:3px solid #000;padding-bottom:15px;margin-bottom:30px} 
+            .header h1{margin:0;font-size:28px;font-weight:900} table{width:100%;border-collapse:collapse;margin-bottom:20px;font-size:14px} 
+            th,td{border:1px solid #000;padding:8px;text-align:center} th{background-color:#eee;font-weight:bold} .text-right{text-align:right} 
+            .section-title{font-weight:bold;font-size:16px;margin:20px 0 10px;border-bottom:2px solid #ccc;padding-bottom:5px}
+            .variance-box{border:2px solid #000;padding:15px;text-align:center;margin:30px 0;font-size:18px;font-weight:bold}
+            .footer{margin-top:60px;display:flex;justify-content:space-between;text-align:center;font-weight:bold}
+            </style></head><body>
+            <div class="header"><h1>${title}</h1></div>
+            <div style="border:1px solid #000;padding:10px;margin-bottom:20px;display:flex;justify-content:space-between;font-weight:bold;background:#f9f9f9">
+                <span>رقم العملية: ${data.id}</span><span>التاريخ: ${new Date(data.date).toLocaleString('ar-EG')}</span><span style="color:${typeColor}">${typeLabel}</span>
+            </div>
+            <div class="section-title">الملخص المالي (${data.currency})</div>
+            <table><tr><th>البيان</th><th>القيمة</th></tr>
+            ${data.type!=='SUPPLY'?`<tr><td class="text-right">إجمالي الخارج</td><td>${formatCurrency(data.totalCashOut,data.currency)}</td></tr>`:''}
+            ${data.type!=='TRANSFER'?`<tr><td class="text-right">إجمالي المستلم</td><td>${formatCurrency(data.totalCashIn,data.currency)}</td></tr>`:''}
+            ${data.type==='CUSTOMER'?`<tr><td class="text-right">الشيكات</td><td>${formatCurrency(data.totalChecks,data.currency)}</td></tr><tr><td class="text-right">المطلوب (Slips)</td><td>${formatCurrency(data.totalDepositsRequired,data.currency)}</td></tr>`:''}
+            </table>
+            ${data.type==='CUSTOMER'?`<div class="variance-box">الفرق: ${formatCurrency(data.variance,data.currency)}<div style="font-size:14px;margin-top:5px;font-weight:normal">${Math.abs(data.variance)<0.01?'✅ متطابقة':data.variance>0?'⚠️ زيادة':'⛔ عجز'}</div></div>`:''}
+            <div class="section-title">تفاصيل الفئات</div>
+            ${data.totalCashIn>0?`<h3>وارد (In)</h3><table><thead><tr><th>الفئة</th><th>العدد</th><th>القيمة</th></tr></thead><tbody>${Object.entries(data.cashInBreakdown).map(([d,c])=>c>0?`<tr><td>${d}</td><td>${c}</td><td>${formatNumber(c*d)}</td></tr>`:'').join('')}</tbody></table>`:''}
+            ${data.totalCashOut>0?`<h3>خارج (Out)</h3><table><thead><tr><th>الفئة</th><th>العدد</th><th>القيمة</th></tr></thead><tbody>${Object.entries(data.cashOutBreakdown).map(([d,c])=>c>0?`<tr><td>${d}</td><td>${c}</td><td>${formatNumber(c*d)}</td></tr>`:'').join('')}</tbody></table>`:''}
+            <div class="footer"><div><p>التيلر: ${tellerName}</p><p style="margin-top:30px">التوقيع: .................</p></div><div><p>المراجع</p><p style="margin-top:30px">التوقيع: .................</p></div></div>
+            <script>window.onload=function(){setTimeout(function(){window.print();},500);}<\/script></body></html>`;
+            printWindow.document.write(html);
+            printWindow.document.close();
+        };
+
+        // --- شاشة الدخول (Login) ---
+        function LoginScreen({ onLogin }) {
+            const [pin, setPin] = useState('');
+            const [error, setError] = useState(false);
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                if (pin === APP_PIN) {
+                    onLogin();
+                } else {
+                    setError(true);
+                    setPin('');
+                }
+            };
+
+            return (
+                <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md text-center">
+                        <div className="flex justify-center mb-6">
+                            <div className="bg-slate-100 p-4 rounded-full">
+                                <Lock size={48} className="text-slate-800"/>
+                            </div>
+                        </div>
+                        <h2 className="text-2xl font-bold text-slate-800 mb-2">Cash Count</h2>
+                        <p className="text-gray-500 mb-6">الرجاء إدخال رمز المرور للمتابعة</p>
+                        
+                        <form onSubmit={handleSubmit} className="space-y-4">
+                            <input 
+                                type="password" 
+                                value={pin}
+                                onChange={(e) => {setPin(e.target.value); setError(false);}}
+                                className="w-full text-center text-3xl font-bold tracking-widest border-2 border-gray-300 rounded-lg py-3 focus:border-slate-800 focus:outline-none transition-colors"
+                                placeholder="****"
+                                autoFocus
+                            />
+                            {error && <p className="text-red-500 text-sm font-bold animate-pulse">رمز المرور غير صحيح!</p>}
+                            <button 
+                                type="submit" 
+                                className="w-full bg-slate-800 text-white font-bold py-3 rounded-lg hover:bg-slate-700 transition-colors flex items-center justify-center gap-2"
+                            >
+                                <Unlock size={20}/> دخول للنظام
+                            </button>
+                        </form>
+                        <p className="text-xs text-gray-400 mt-6">V8.1 Secure Edition</p>
+                    </div>
+                </div>
+            );
+        }
+
+        // --- المكون الرئيسي ---
+        function App() {
+            // حالة تسجيل الدخول: نتحقق من Session Storage لكي لا يطلب الباسوورد عند كل ريفريش لنفس الجلسة
+            const [isLoggedIn, setIsLoggedIn] = useState(() => sessionStorage.getItem('teller_auth') === 'true');
+            const [currentView, setCurrentView] = useState('calculator'); 
+            const fileInputRef = useRef(null);
+            
+            const [tellerName, setTellerName] = useState(() => localStorage.getItem('teller_name_v7') || '');
+            const [transactions, setTransactions] = useState(() => {
+                try { return JSON.parse(localStorage.getItem('teller_transactions_v7')) || []; } catch { return []; }
+            });
+            const [vault, setVault] = useState(() => {
+                try { return JSON.parse(localStorage.getItem('teller_vault_v7')) || (() => {
+                    const v = {}; Object.keys(CURRENCIES).forEach(c => { v[c] = {}; CURRENCIES[c].denominations.forEach(d => v[c][d] = 0); }); return v;
+                })(); } catch { return {}; }
+            });
+
+            useEffect(() => {
+                localStorage.setItem('teller_name_v7', tellerName);
+                localStorage.setItem('teller_vault_v7', JSON.stringify(vault));
+                localStorage.setItem('teller_transactions_v7', JSON.stringify(transactions));
+                if(window.lucide) window.lucide.createIcons();
+            }, [vault, transactions, tellerName, currentView, isLoggedIn]);
+
+            const handleLogin = () => {
+                setIsLoggedIn(true);
+                sessionStorage.setItem('teller_auth', 'true');
+            };
+
+            const handleLogout = () => {
+                setIsLoggedIn(false);
+                sessionStorage.removeItem('teller_auth');
+            };
+
+            const processTransaction = (transData) => {
+                const newTrans = { ...transData, id: Date.now(), date: new Date().toISOString(), tellerName };
+                setTransactions(prev => [newTrans, ...prev]);
+                setVault(prev => {
+                    const newVault = { ...prev }; const cv = newVault[transData.currency];
+                    Object.entries(transData.cashInBreakdown).forEach(([d, c]) => cv[d] = (cv[d] || 0) + c);
+                    Object.entries(transData.cashOutBreakdown).forEach(([d, c]) => cv[d] = (cv[d] || 0) - c);
+                    return newVault;
+                });
+                return newTrans;
+            };
+
+            const backupData = () => {
+                const blob = new Blob([JSON.stringify({ vault, transactions, tellerName, backupDate: new Date().toISOString() })], { type: 'application/json' });
+                const link = document.createElement('a'); link.href = URL.createObjectURL(blob);
+                link.download = `Teller_Backup_${tellerName}_${new Date().toISOString().slice(0,10)}.json`;
+                document.body.appendChild(link); link.click(); document.body.removeChild(link);
+            };
+
+            const restoreData = (e) => {
+                const file = e.target.files[0]; if (!file) return;
+                const r = new FileReader();
+                r.onload = (ev) => {
+                    try { const d = JSON.parse(ev.target.result);
+                        if (d.vault && Array.isArray(d.transactions)) {
+                            if(confirm(`استرجاع نسخة احتياطية بتاريخ: ${new Date(d.backupDate).toLocaleString()}؟`)) {
+                                setVault(d.vault); setTransactions(d.transactions); if(d.tellerName) setTellerName(d.tellerName);
+                                alert("تم الاسترجاع بنجاح");
+                            }
+                        } else alert("ملف تالف");
+                    } catch { alert("خطأ في الملف"); }
+                }; r.readAsText(file); e.target.value = null;
+            };
+
+            if (!isLoggedIn) {
+                return <LoginScreen onLogin={handleLogin} />;
+            }
+
+            return (
+                <div className="min-h-screen bg-gray-100 text-gray-900" dir="rtl">
+                    <nav className="bg-slate-900 text-white shadow-lg sticky top-0 z-40">
+                        <div className="max-w-7xl mx-auto px-4">
+                            <div className="flex flex-col md:flex-row items-center justify-between py-2">
+                                <div className="flex items-center gap-2 mb-2 md:mb-0">
+                                    <Coins className="text-yellow-500" size={32} /> <span className="font-bold text-xl">Cash Count</span>
+                                </div>
+                                <div className="flex items-center gap-4">
+                                    <div className="flex items-center gap-2 bg-slate-800 px-3 py-1 rounded-lg border border-slate-600">
+                                        <User size={16} className="text-gray-400"/><input type="text" placeholder="اسم التيلر..." value={tellerName} onChange={(e) => setTellerName(e.target.value)} className="bg-transparent border-none text-white focus:outline-none text-sm font-bold w-32" />
+                                    </div>
+                                    <button onClick={handleLogout} className="text-red-400 hover:text-red-300 font-bold text-sm border border-red-900 px-2 py-1 rounded bg-slate-800">خروج</button>
+                                </div>
+                            </div>
+                            <div className="flex gap-2 justify-center md:justify-start pb-2">
+                                <NavBtn active={currentView==='calculator'} onClick={()=>setCurrentView('calculator')} icon="calculator" label="العمليات"/>
+                                <NavBtn active={currentView==='vault'} onClick={()=>setCurrentView('vault')} icon="wallet" label="الخزينة"/>
+                                <NavBtn active={currentView==='history'} onClick={()=>setCurrentView('history')} icon="refresh-ccw" label="السجل"/>
+                            </div>
+                        </div>
+                    </nav>
+
+                    <main className="max-w-7xl mx-auto px-4 py-6">
+                        <div className="bg-white p-3 rounded-lg shadow-sm border border-gray-200 mb-6 flex flex-col md:flex-row justify-between items-center gap-3">
+                            <div className="text-sm text-gray-500 flex items-center gap-2"><AlertTriangle size={16} className="text-yellow-600"/><span>تنبيه: البيانات محفوظة محلياً. احفظ Backup يومياً.</span></div>
+                            <div className="flex gap-2">
+                                <button onClick={backupData} className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-700 rounded text-sm font-bold border border-blue-200 hover:bg-blue-100"><Download size={16}/> حفظ Backup</button>
+                                <button onClick={() => fileInputRef.current.click()} className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 text-gray-700 rounded text-sm font-bold border border-gray-300 hover:bg-gray-100"><Upload size={16}/> استرجاع</button>
+                                <input type="file" ref={fileInputRef} onChange={restoreData} className="hidden" accept=".json" />
+                            </div>
+                        </div>
+
+                        {currentView === 'calculator' && <CalculatorView onProcess={processTransaction} onPrint={(d)=>openPrintWindow(d,tellerName)} />}
+                        {currentView === 'vault' && <VaultView vault={vault} onProcess={processTransaction} />}
+                        {currentView === 'history' && <HistoryView transactions={transactions} onPrint={(d)=>openPrintWindow(d,tellerName)} />}
+                    </main>
+                </div>
+            );
+        }
+
+        const NavBtn = ({ active, onClick, icon, label }) => (
+            <button onClick={onClick} className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-bold transition-all ${active?'bg-yellow-500 text-slate-900':'text-gray-300 hover:bg-slate-700'}`}>
+                <Icon name={icon} size={18}/><span>{label}</span>
+            </button>
+        );
+
+        // --- Sub-Components (Calculator) ---
+        function CalculatorView({ onProcess, onPrint }) {
+            const [currency, setCurrency] = useState('EGP');
+            const [form, setForm] = useState({ in: {}, out: {}, checks: [], slips: [] });
+            
+            const calcTotal = (obj) => Object.entries(obj).reduce((s, [d, c]) => s + (d * c), 0);
+            const sumArr = (arr) => arr.reduce((s, i) => s + (parseFloat(i.amount) || 0), 0);
+
+            const totals = {
+                in: calcTotal(form.in), out: calcTotal(form.out),
+                checks: sumArr(form.checks), slips: sumArr(form.slips)
+            };
+            const variance = (totals.in + totals.checks) - totals.out - totals.slips;
+
+            const prepare = (id) => ({
+                id, type: 'CUSTOMER', date: new Date().toISOString(), currency,
+                cashInBreakdown: form.in, totalCashIn: totals.in,
+                cashOutBreakdown: form.out, totalCashOut: totals.out,
+                checks: form.checks, totalChecks: totals.checks,
+                deposits: form.slips, totalDepositsRequired: totals.slips,
+                variance
+            });
+
+            const handleSave = () => {
+                if(totals.slips === 0 && (totals.in + totals.checks) === 0) return alert("لا يوجد بيانات");
+                const res = onProcess(prepare('TEMP'));
+                setForm({ in: {}, out: {}, checks: [], slips: [] });
+                alert(`تم الحفظ #${res.id}`);
+            };
+
+            return (
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                    <div className="lg:col-span-8 space-y-6">
+                        <div className="bg-white p-4 rounded shadow border-t-4 border-yellow-500 flex justify-between">
+                            <h2 className="text-xl font-bold">عملية عميل</h2>
+                            <select value={currency} onChange={e=>{setCurrency(e.target.value); setForm({ in: {}, out: {}, checks: [], slips: [] })}} className="border p-2 rounded font-bold">{Object.keys(CURRENCIES).map(c=><option key={c} value={c}>{CURRENCIES[c].name}</option>)}</select>
+                        </div>
+                        <DenomTable title="1. نقدية واردة (Cash In)" currency={currency} data={form.in} setData={d=>setForm(p=>({...p, in:d}))} color="blue" />
+                        <ItemsList title="2. شيكات" items={form.checks} setItems={d=>setForm(p=>({...p, checks:d}))} icon="file-spreadsheet" />
+                        <ItemsList title="3. قسائم إيداع" items={form.slips} setItems={d=>setForm(p=>({...p, slips:d}))} icon="save" bg="bg-green-50" />
+                        <DenomTable title="4. نقدية خارجة (Cash Out)" currency={currency} data={form.out} setData={d=>setForm(p=>({...p, out:d}))} color="red" />
+                    </div>
+                    <div className="lg:col-span-4 space-y-4 sticky top-24">
+                        <div className="bg-white p-5 rounded shadow text-center">
+                            <h3 className="font-bold border-b pb-2 mb-2">الملخص</h3>
+                            <div className="flex justify-between text-sm"><span>إجمالي وارد:</span><b>{formatNumber(totals.in)}</b></div>
+                            <div className="flex justify-between text-sm"><span>إجمالي شيكات:</span><b>{formatNumber(totals.checks)}</b></div>
+                            <hr className="my-2"/>
+                            <div className="flex justify-between font-bold"><span>المجموع المستلم:</span><span>{formatNumber(totals.in+totals.checks)}</span></div>
+                            <div className="mt-4 flex justify-between text-sm text-blue-600"><span>المطلوب (Slips):</span><b>{formatNumber(totals.slips)}</b></div>
+                            <div className="flex justify-between text-sm text-red-600"><span>المرتجع (Out):</span><b>{formatNumber(totals.out)}</b></div>
+                            <hr className="my-2"/>
+                            <div className={`text-3xl font-black my-2 ${Math.abs(variance)<0.01?'text-green-600':variance>0?'text-yellow-600':'text-red-600'}`}>{formatCurrency(variance, '')}</div>
+                            <div className="font-bold text-sm">{Math.abs(variance)<0.01?'✅ متطابق':variance>0?'⚠️ زيادة':'⛔ عجز'}</div>
+                        </div>
+                        <button onClick={()=>onPrint(prepare('مسودة'))} className="w-full py-3 bg-gray-600 text-white font-bold rounded flex justify-center gap-2"><Printer size={18}/> طباعة</button>
+                        <button onClick={handleSave} className="w-full py-4 bg-slate-900 text-yellow-400 font-bold rounded shadow flex justify-center gap-2"><Save size={20}/> حفظ العملية</button>
+                    </div>
+                </div>
+            );
+        }
+
+        // --- Sub-Components (Vault) ---
+        function VaultView({ vault, onProcess }) {
+            const [curr, setCurr] = useState('EGP');
+            const [modal, setModal] = useState(null);
+            const total = Object.entries(vault[curr]||{}).reduce((s,[d,c])=>s+(d*c),0);
+
+            const handleOp = (counts) => {
+                onProcess({
+                    type: modal, currency: curr,
+                    cashInBreakdown: modal==='SUPPLY'?counts:{}, totalCashIn: modal==='SUPPLY'?calcTotal(counts):0,
+                    cashOutBreakdown: modal==='TRANSFER'?counts:{}, totalCashOut: modal==='TRANSFER'?calcTotal(counts):0,
+                    checks:[], totalChecks:0, deposits:[], totalDepositsRequired:0, variance:0
+                });
+                setModal(null); alert("تمت العملية");
+            };
+            const calcTotal = (obj) => Object.entries(obj).reduce((s,[d,c])=>s+(d*c),0);
+
+            return (
+                <div className="space-y-6">
+                    <div className="bg-white p-4 rounded shadow flex justify-between items-center">
+                        <h2 className="text-xl font-bold">الخزينة</h2>
+                        <div className="flex gap-2">
+                            <select value={curr} onChange={e=>setCurr(e.target.value)} className="border p-2 rounded font-bold">{Object.keys(CURRENCIES).map(c=><option key={c} value={c}>{CURRENCIES[c].name}</option>)}</select>
+                            <button onClick={()=>setModal('SUPPLY')} className="bg-green-600 text-white px-3 py-2 rounded font-bold flex gap-1"><ArrowDownCircle size={18}/> توريد</button>
+                            <button onClick={()=>setModal('TRANSFER')} className="bg-orange-600 text-white px-3 py-2 rounded font-bold flex gap-1"><ArrowUpCircle size={18}/> تحويل</button>
+                        </div>
+                    </div>
+                    <div className="grid md:grid-cols-2 gap-6">
+                        <div className="bg-white rounded shadow overflow-hidden">
+                            <table className="w-full text-center">
+                                <thead className="bg-slate-800 text-white"><tr><th className="p-3">الفئة</th><th className="p-3">العدد</th><th className="p-3">القيمة</th></tr></thead>
+                                <tbody>{CURRENCIES[curr].denominations.map(d=><tr key={d} className="border-b"><td className="font-bold">{d}</td><td className="font-mono">{vault[curr][d]||0}</td><td className="text-gray-500">{formatNumber((vault[curr][d]||0)*d)}</td></tr>)}</tbody>
+                                <tfoot className="bg-gray-100 font-bold text-lg"><tr><td colSpan="2">الإجمالي</td><td className="text-blue-700">{formatCurrency(total, curr)}</td></tr></tfoot>
+                            </table>
+                        </div>
+                        <div className="bg-blue-50 p-6 rounded h-fit border border-blue-200">
+                            <h3 className="font-bold text-blue-900 mb-2">رصيد الخزينة الفعلي</h3>
+                            <div className="text-4xl font-bold text-blue-700">{formatCurrency(total, curr)}</div>
+                        </div>
+                    </div>
+                    {modal && <div className="fixed inset-0 bg-black/60 flex justify-center items-center z-50 p-4">
+                        <div className="bg-white w-full max-w-md rounded shadow-lg overflow-hidden">
+                            <div className={`p-4 text-white font-bold flex justify-between ${modal==='SUPPLY'?'bg-green-700':'bg-orange-700'}`}>
+                                <span>{modal==='SUPPLY'?'توريد (In)':'تحويل (Out)'} - {curr}</span><button onClick={()=>setModal(null)}><X/></button>
+                            </div>
+                            <DenomTable currency={curr} data={{}} setData={handleOp} simpleMode={true} btnLabel="تأكيد" color={modal==='SUPPLY'?'green':'orange'} />
+                        </div>
+                    </div>}
+                </div>
+            );
+        }
+
+        // --- Sub-Components (History) ---
+        function HistoryView({ transactions, onPrint }) {
+            const exportCSV = () => {
+                if(!transactions.length) return;
+                let csv = "\uFEFFID,Type,Teller,Date,Currency,Total In,Total Out,Variance\n";
+                transactions.forEach(t => csv += `"${t.id}",${t.type},"${t.tellerName}","${t.date}",${t.currency},${t.totalCashIn},${t.totalCashOut},${t.variance}\n`);
+                const link = document.createElement("a"); link.href = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8;" }));
+                link.download = `Report_${new Date().toISOString().slice(0,10)}.csv`; link.click();
+            };
+            return (
+                <div className="space-y-6">
+                    <div className="flex justify-between items-center bg-white p-4 rounded shadow">
+                        <h2 className="text-xl font-bold">السجل</h2>
+                        <button onClick={exportCSV} className="bg-green-600 text-white px-3 py-2 rounded font-bold flex gap-2"><FileSpreadsheet size={18}/> Excel</button>
+                    </div>
+                    <div className="bg-white rounded shadow overflow-x-auto">
+                        <table className="w-full text-right whitespace-nowrap">
+                            <thead className="bg-gray-100 text-sm"><tr><th className="p-3">#</th><th className="p-3">النوع</th><th className="p-3">التيلر</th><th className="p-3">الوقت</th><th className="p-3">وارد</th><th className="p-3">صادر</th><th className="p-3"></th></tr></thead>
+                            <tbody>{transactions.map(t=>(<tr key={t.id} className="border-b hover:bg-gray-50"><td className="p-3 font-mono">{t.id.toString().slice(-4)}</td><td className="p-3 font-bold text-xs">{t.type}</td><td className="p-3 text-sm">{t.tellerName}</td><td className="p-3 text-sm">{new Date(t.date).toLocaleTimeString()}</td><td className="p-3 text-green-700 font-bold">{t.totalCashIn>0?formatNumber(t.totalCashIn):'-'}</td><td className="p-3 text-red-700 font-bold">{t.totalCashOut>0?formatNumber(t.totalCashOut):'-'}</td><td className="p-3"><button onClick={()=>onPrint(t)} className="text-gray-600 bg-gray-100 p-1 rounded hover:bg-gray-200"><Printer size={16}/></button></td></tr>))}</tbody>
+                        </table>
+                        {!transactions.length && <div className="p-8 text-center text-gray-400">لا توجد عمليات</div>}
+                    </div>
+                </div>
+            );
+        }
+
+        // --- Helpers ---
+        function DenomTable({ title, currency, data, setData, color, simpleMode, btnLabel }) {
+            const [local, setLocal] = useState(data);
+            useEffect(()=>setLocal(data), [data]);
+            const handleChange = (d, v) => {
+                const n = {...local, [d]: parseInt(v)||0};
+                setLocal(n); if(!simpleMode) setData(n);
+            };
+            const total = Object.entries(local).reduce((s,[d,c])=>s+(d*c),0);
+            
+            return (
+                <div className={!simpleMode ? `bg-white rounded shadow border-t-4 border-${color}-500 overflow-hidden` : ''}>
+                    {!simpleMode && <div className="bg-gray-50 p-3 flex justify-between border-b"><h3 className={`font-bold text-${color}-700`}>{title}</h3><span className="font-bold">{formatCurrency(total, currency)}</span></div>}
+                    <div className={simpleMode ? "max-h-[50vh] overflow-y-auto p-4" : ""}>
+                        <table className="w-full text-sm">
+                            <thead className="bg-gray-100 text-gray-600"><tr><th className="py-2 text-right px-4">الفئة</th><th className="px-2">العدد</th><th className="text-left px-4">القيمة</th></tr></thead>
+                            <tbody>{CURRENCIES[currency].denominations.map(d=>(<tr key={d} className="border-b"><td className="py-1 px-4 font-bold">{d}</td><td className="px-2"><input type="number" min="0" placeholder="0" className="w-full text-center border rounded font-bold p-1" value={local[d]===0?'':local[d]} onChange={e=>handleChange(d,e.target.value)} onFocus={e=>e.target.select()}/></td><td className="px-4 text-left text-gray-500">{formatNumber((local[d]||0)*d)}</td></tr>))}</tbody>
+                        </table>
+                    </div>
+                    {simpleMode && <div className="bg-gray-100 p-4 flex justify-between items-center"><span className="font-bold">الإجمالي: {formatNumber(total)}</span><button onClick={()=>setData(local)} className={`bg-${color}-600 text-white px-6 py-2 rounded font-bold`}>{btnLabel}</button></div>}
+                </div>
+            );
+        }
+
+        function ItemsList({ title, items, setItems, icon, bg="bg-white" }) {
+            const [val, setVal] = useState('');
+            const add = () => { if(val){ setItems([...items, {id:Date.now(), amount:parseFloat(val)}]); setVal(''); }};
+            const total = items.reduce((s,i)=>s+i.amount,0);
+            return (
+                <div className={`${bg} p-4 rounded shadow border border-gray-200`}>
+                    <div className="flex justify-between mb-2"><div className="flex gap-2 font-bold text-gray-700"><Icon name={icon}/>{title}</div><span className="bg-white px-2 border rounded font-mono">{formatNumber(total)}</span></div>
+                    <div className="flex gap-2 mb-2"><input type="number" className="flex-1 border rounded p-2" value={val} onChange={e=>setVal(e.target.value)} onKeyDown={e=>e.key==='Enter'&&add()} placeholder="القيمة..." /><button onClick={add} className="bg-slate-700 text-white px-3 rounded"><Plus/></button></div>
+                    <ul className="max-h-32 overflow-y-auto space-y-1">{items.map((i,idx)=><li key={i.id} className="flex justify-between bg-white px-2 py-1 border rounded text-sm"><span>#{idx+1}: <b>{formatNumber(i.amount)}</b></span><button onClick={()=>setItems(items.filter(x=>x.id !== i.id))} className="text-red-500"><Trash2 size={14}/></button></li>)}</ul>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
+
