@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cash Count Final Description</title>
+    <title>Cash Count V19 Final Description</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style> 
@@ -36,10 +36,10 @@
         const { useState, useEffect, useRef } = React;
         
         const CURRENCIES = { 
-            EGP: { name: 'Ø¬ÙÙÙ ÙØµØ±Ù', symbol: 'EGP', denominations: [200, 100, 50, 20, 10, 5, 1, 0.5, 0.25, 0.01] },
-            USD: { name: 'Ø¯ÙÙØ§Ø± Ø£ÙØ±ÙÙÙ', symbol: 'USD', denominations: [100, 50, 20, 10, 5, 2, 1] }, 
-            EUR: { name: 'ÙÙØ±Ù', symbol: 'EUR', denominations: [500, 200, 100, 50, 20, 10, 5] }, 
-            SAR: { name: 'Ø±ÙØ§Ù Ø³Ø¹ÙØ¯Ù', symbol: 'SAR', denominations: [500, 100, 50, 10, 5, 1] } 
+            EGP: { name: 'جنيه مصري', symbol: 'EGP', denominations: [200, 100, 50, 20, 10, 5, 1, 0.5, 0.25, 0.01] },
+            USD: { name: 'دولار أمريكي', symbol: 'USD', denominations: [100, 50, 20, 10, 5, 2, 1] }, 
+            EUR: { name: 'يورو', symbol: 'EUR', denominations: [500, 200, 100, 50, 20, 10, 5] }, 
+            SAR: { name: 'ريال سعودي', symbol: 'SAR', denominations: [500, 100, 50, 10, 5, 1] } 
         };
         const SYSTEM_DENOMS = [100, 10, 5, 1, 0.5, 0.25, 0.01]; 
 
@@ -60,7 +60,7 @@
                 const oldV = oldData.cashInBreakdown[d] || 0;
                 const newV = newData.cashInBreakdown[d] || 0;
                 if(oldV !== newV) {
-                    changes.push(`ØªØ¹Ø¯ÙÙ ÙØ§Ø±Ø¯ ÙØ¦Ø© ${d}: ÙÙ (${fmtCount(oldV, d)}) Ø¥ÙÙ (${fmtCount(newV, d)})`);
+                    changes.push(`تعديل وارد فئة ${d}: من (${fmtCount(oldV, d)}) إلى (${fmtCount(newV, d)})`);
                 }
             });
 
@@ -70,54 +70,54 @@
                 const oldV = oldData.cashOutBreakdown[d] || 0;
                 const newV = newData.cashOutBreakdown[d] || 0;
                 if(oldV !== newV) {
-                    changes.push(`ØªØ¹Ø¯ÙÙ Ø®Ø§Ø±Ø¬ ÙØ¦Ø© ${d}: ÙÙ (${fmtCount(oldV, d)}) Ø¥ÙÙ (${fmtCount(newV, d)})`);
+                    changes.push(`تعديل خارج فئة ${d}: من (${fmtCount(oldV, d)}) إلى (${fmtCount(newV, d)})`);
                 }
             });
 
             // Totals
             if(oldData.totalChecks !== newData.totalChecks) {
-                changes.push(`ØªØ¹Ø¯ÙÙ Ø¥Ø¬ÙØ§ÙÙ Ø§ÙØ´ÙÙØ§Øª: ÙÙ ${fmtNum(oldData.totalChecks)} Ø¥ÙÙ ${fmtNum(newData.totalChecks)}`);
+                changes.push(`تعديل إجمالي الشيكات: من ${fmtNum(oldData.totalChecks)} إلى ${fmtNum(newData.totalChecks)}`);
             }
             if(oldData.totalDepositsRequired !== newData.totalDepositsRequired) {
-                changes.push(`ØªØ¹Ø¯ÙÙ Ø¥Ø¬ÙØ§ÙÙ Ø§ÙØ¥ÙØ¯Ø§Ø¹Ø§Øª: ÙÙ ${fmtNum(oldData.totalDepositsRequired)} Ø¥ÙÙ ${fmtNum(newData.totalDepositsRequired)}`);
+                changes.push(`تعديل إجمالي الإيداعات: من ${fmtNum(oldData.totalDepositsRequired)} إلى ${fmtNum(newData.totalDepositsRequired)}`);
             }
 
             const timestamp = new Date().toLocaleTimeString('en-EG', {hour12:true, hour:'2-digit', minute:'2-digit'});
-            const newEntry = `[${timestamp}] ` + (changes.length > 0 ? changes.join(" | ") : "ØªÙ Ø§ÙØ­ÙØ¸ Ø¨Ø¯ÙÙ ØªØºÙÙØ±Ø§Øª ÙÙ Ø§ÙÙÙÙ");
+            const newEntry = `[${timestamp}] ` + (changes.length > 0 ? changes.join(" | ") : "تم الحفظ بدون تغييرات في القيم");
             return oldNotes ? `${oldNotes}\n${newEntry}` : newEntry;
         };
 
         const openPrint = (data) => {
             const w = window.open('', '_blank', 'width=900,height=800');
-            if(!w) return alert("Ø§Ø³ÙØ­ Ø¨Ø§ÙÙÙØ§ÙØ° Ø§ÙÙÙØ¨Ø«ÙØ©");
+            if(!w) return alert("اسمح بالنوافذ المنبثقة");
             
-            let title="Ø¥ÙØµØ§Ù ÙØ¹Ø§ÙÙØ©", lbl="Ø¹ÙÙÙ", clr="#000";
-            if(data.type==='CASH_IN'){title="Ø¥ÙØµØ§Ù Ø§Ø³ØªÙØ§Ù ÙÙØ¯ÙØ©";lbl="Cash In";clr="green";}
-            else if(data.type==='CASH_OUT'){title="Ø¥ÙØµØ§Ù Ø¥Ø®Ø±Ø§Ø¬ ÙÙØ¯ÙØ©";lbl="Cash Out";clr="orange";}
-            else if(data.type==='EXCHANGE'){title="Ø¥ÙØµØ§Ù ØªØºÙÙØ± ÙØ¦Ø§Øª";lbl="Exchange";clr="blue";}
-            else if(data.type==='MULTI'){title="Ø¥ÙØ¯Ø§Ø¹Ø§Øª ÙØªØ¹Ø¯Ø¯Ø©";lbl="Multi-Deposit";clr="purple";}
+            let title="إيصال معاملة", lbl="عميل", clr="#000";
+            if(data.type==='CASH_IN'){title="إيصال استلام نقدية";lbl="Cash In";clr="green";}
+            else if(data.type==='CASH_OUT'){title="إيصال إخراج نقدية";lbl="Cash Out";clr="orange";}
+            else if(data.type==='EXCHANGE'){title="إيصال تغيير فئات";lbl="Exchange";clr="blue";}
+            else if(data.type==='MULTI'){title="إيداعات متعددة";lbl="Multi-Deposit";clr="purple";}
             
             let statusBadge = "";
-            if(data.status === "VOID") statusBadge = "<span style='color:red;border:2px solid red;padding:5px;transform:rotate(-15deg);display:inline-block;font-size:20px'>ÙÙØºØ§Ø© (VOID)</span>";
-            else if(data.auditNotes) statusBadge = "<span style='color:blue;border:2px solid blue;padding:2px 5px;'>ÙØ¹Ø¯ÙØ© (Edited)</span>";
+            if(data.status === "VOID") statusBadge = "<span style='color:red;border:2px solid red;padding:5px;transform:rotate(-15deg);display:inline-block;font-size:20px'>ملغاة (VOID)</span>";
+            else if(data.auditNotes) statusBadge = "<span style='color:blue;border:2px solid blue;padding:2px 5px;'>معدلة (Edited)</span>";
 
             const html = `<!DOCTYPE html><html dir="rtl" lang="ar"><head><title>Print #${data.id}</title><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet"><style>body{font-family:'Cairo';padding:40px}table{width:100%;border-collapse:collapse;margin:20px 0}th,td{border:1px solid #000;padding:8px;text-align:center}th{background:#eee}.box{border:2px solid #000;padding:15px;text-align:center;margin:20px 0;font-weight:bold}.footer{display:flex;justify-content:space-between;margin-top:50px}</style></head><body>
             <h1 style="text-align:center;border-bottom:3px solid #000;padding-bottom:10px">${title} ${statusBadge}</h1>
-            <div style="background:#f9f9f9;padding:10px;border:1px solid #000;display:flex;justify-content:space-between;font-weight:bold"><span>Ø±ÙÙ: ${data.id || 'ÙØ³ÙØ¯Ø©'}</span><span>${data.date ? fmtDate(data.date) : new Date().toLocaleString('en-EG')}</span><span style="color:${clr}">${lbl}</span></div>
-            <h3>Ø§ÙÙÙØ®Øµ (${data.currency})</h3>
-            <table><tr><th>Ø§ÙØ¨ÙØ§Ù</th><th>Ø§ÙÙÙÙØ©</th></tr>
-            ${data.type==='EXCHANGE' ? `<tr><td>Ø§ÙÙØ¨ÙØº Ø§ÙÙØºÙØ±</td><td>${fmtCurr(data.totalCashIn, data.currency)}</td></tr>` : 
-            `${data.type!=='CASH_IN'?`<tr><td style="text-align:right">Ø¥Ø¬ÙØ§ÙÙ Ø§ÙØ®Ø§Ø±Ø¬ (Out)</td><td>${fmtCurr(data.totalCashOut,data.currency)}</td></tr>`:''}
-            ${data.type!=='CASH_OUT'?`<tr><td style="text-align:right">Ø¥Ø¬ÙØ§ÙÙ Ø§ÙÙØ³ØªÙÙ (In)</td><td>${fmtCurr(data.totalCashIn,data.currency)}</td></tr>`:''}
-            ${(data.type==='CUSTOMER' || data.type==='MULTI')?`<tr><td style="text-align:right">Ø§ÙØ´ÙÙØ§Øª</td><td>${fmtCurr(data.totalChecks,data.currency)}</td></tr><tr><td style="text-align:right">Ø§ÙÙØ·ÙÙØ¨ (Slips)</td><td>${fmtCurr(data.totalDepositsRequired,data.currency)}</td></tr>`:''}`}
+            <div style="background:#f9f9f9;padding:10px;border:1px solid #000;display:flex;justify-content:space-between;font-weight:bold"><span>رقم: ${data.id || 'مسودة'}</span><span>${data.date ? fmtDate(data.date) : new Date().toLocaleString('en-EG')}</span><span style="color:${clr}">${lbl}</span></div>
+            <h3>الملخص (${data.currency})</h3>
+            <table><tr><th>البيان</th><th>القيمة</th></tr>
+            ${data.type==='EXCHANGE' ? `<tr><td>المبلغ المغير</td><td>${fmtCurr(data.totalCashIn, data.currency)}</td></tr>` : 
+            `${data.type!=='CASH_IN'?`<tr><td style="text-align:right">إجمالي الخارج (Out)</td><td>${fmtCurr(data.totalCashOut,data.currency)}</td></tr>`:''}
+            ${data.type!=='CASH_OUT'?`<tr><td style="text-align:right">إجمالي المستلم (In)</td><td>${fmtCurr(data.totalCashIn,data.currency)}</td></tr>`:''}
+            ${(data.type==='CUSTOMER' || data.type==='MULTI')?`<tr><td style="text-align:right">الشيكات</td><td>${fmtCurr(data.totalChecks,data.currency)}</td></tr><tr><td style="text-align:right">المطلوب (Slips)</td><td>${fmtCurr(data.totalDepositsRequired,data.currency)}</td></tr>`:''}`}
             </table>
-            ${(data.type==='CUSTOMER' || data.type==='MULTI')?`<div class="box">Ø§ÙÙØ±Ù: ${fmtCurr(data.variance,data.currency)}<br/><small>${Math.abs(data.variance)<0.01?'â ÙØªØ·Ø§Ø¨ÙØ©':data.variance>0?'â ï¸ Ø²ÙØ§Ø¯Ø©':'â Ø¹Ø¬Ø²'}</small></div>`:''}
-            ${data.type === 'MULTI' && data.systemBreakdown ? `<h4>Ø§ÙÙØ¦Ø§Øª Ø§ÙÙØ·ÙÙØ¨Ø© ÙÙØ³ÙØ³ØªÙ (Fake Breakdown)</h4><div style="font-size:12px; border:1px dashed #000; padding:10px; margin-bottom:15px">${Object.entries(data.systemBreakdown).sort((a,b)=>b[0]-a[0]).map(([d,c]) => `[${d}: ${c}]`).join(' - ')}</div>` : ''}
-            ${data.totalCashIn>0?`<h4>ØªÙØ§ØµÙÙ Ø§ÙÙØ§Ø±Ø¯ (In)</h4><table><thead><tr><th>Ø§ÙÙØ¦Ø©</th><th>Ø§ÙØ¹Ø¯Ø¯</th><th>Ø§ÙÙÙÙØ©</th></tr></thead><tbody>${sortDenoms(data.cashInBreakdown).map(([d,c])=>c>0?`<tr><td>${d}</td><td>${c}</td><td>${fmtNum(c*d)}</td></tr>`:'').join('')}</tbody></table>`:''}
-            ${data.totalCashOut>0?`<h4>ØªÙØ§ØµÙÙ Ø§ÙØ®Ø§Ø±Ø¬ (Out)</h4><table><thead><tr><th>Ø§ÙÙØ¦Ø©</th><th>Ø§ÙØ¹Ø¯Ø¯</th><th>Ø§ÙÙÙÙØ©</th></tr></thead><tbody>${sortDenoms(data.cashOutBreakdown).map(([d,c])=>c>0?`<tr><td>${d}</td><td>${c}</td><td>${fmtNum(c*d)}</td></tr>`:'').join('')}</tbody></table>`:''}
-            ${data.checks?.length>0?`<h4>Ø§ÙØ´ÙÙØ§Øª</h4><ul>${data.checks.map(c=>`<li>${fmtNum(c.amount)}</li>`).join('')}</ul>`:''}
-            ${data.deposits?.length>0?`<h4>Ø§ÙØ¥ÙØ¯Ø§Ø¹Ø§Øª</h4><ul>${data.deposits.map(d=>`<li>${fmtNum(d.amount)}</li>`).join('')}</ul>`:''}
-            <div class="footer"><div>Ø§ÙØªÙÙØ±: ${data.tellerName}</div><div>Ø§ÙÙØ±Ø§Ø¬Ø¹: .................</div></div>
+            ${(data.type==='CUSTOMER' || data.type==='MULTI')?`<div class="box">الفرق: ${fmtCurr(data.variance,data.currency)}<br/><small>${Math.abs(data.variance)<0.01?'✅ متطابقة':data.variance>0?'⚠️ زيادة':'⛔ عجز'}</small></div>`:''}
+            ${data.type === 'MULTI' && data.systemBreakdown ? `<h4>الفئات المطلوبة للسيستم (Fake Breakdown)</h4><div style="font-size:12px; border:1px dashed #000; padding:10px; margin-bottom:15px">${Object.entries(data.systemBreakdown).sort((a,b)=>b[0]-a[0]).map(([d,c]) => `[${d}: ${c}]`).join(' - ')}</div>` : ''}
+            ${data.totalCashIn>0?`<h4>تفاصيل الوارد (In)</h4><table><thead><tr><th>الفئة</th><th>العدد</th><th>القيمة</th></tr></thead><tbody>${sortDenoms(data.cashInBreakdown).map(([d,c])=>c>0?`<tr><td>${d}</td><td>${c}</td><td>${fmtNum(c*d)}</td></tr>`:'').join('')}</tbody></table>`:''}
+            ${data.totalCashOut>0?`<h4>تفاصيل الخارج (Out)</h4><table><thead><tr><th>الفئة</th><th>العدد</th><th>القيمة</th></tr></thead><tbody>${sortDenoms(data.cashOutBreakdown).map(([d,c])=>c>0?`<tr><td>${d}</td><td>${c}</td><td>${fmtNum(c*d)}</td></tr>`:'').join('')}</tbody></table>`:''}
+            ${data.checks?.length>0?`<h4>الشيكات</h4><ul>${data.checks.map(c=>`<li>${fmtNum(c.amount)}</li>`).join('')}</ul>`:''}
+            ${data.deposits?.length>0?`<h4>الإيداعات</h4><ul>${data.deposits.map(d=>`<li>${fmtNum(d.amount)}</li>`).join('')}</ul>`:''}
+            <div class="footer"><div>التيلر: ${data.tellerName}</div><div>المراجع: .................</div></div>
             <script>window.onload=function(){setTimeout(function(){window.print()},500)}<\/script></body></html>`;
             w.document.write(html); w.document.close();
         };
@@ -127,11 +127,11 @@
             <div className="modal-overlay">
                 <div className="bg-white p-6 rounded-lg shadow-2xl max-w-sm w-full text-center">
                     <Icons.AlertTriangle size={48} className="mx-auto text-yellow-500 mb-4"/>
-                    <h3 className="font-bold text-lg mb-2">ØªØ£ÙÙØ¯ Ø§ÙØ¥Ø¬Ø±Ø§Ø¡</h3>
+                    <h3 className="font-bold text-lg mb-2">تأكيد الإجراء</h3>
                     <p className="text-gray-600 mb-6 text-sm whitespace-pre-line">{message}</p>
                     <div className="flex gap-2 justify-center">
-                        <button onClick={onConfirm} className="bg-red-600 text-white px-4 py-2 rounded font-bold hover:bg-red-700">ÙØ¹ÙØ ÙÙØ°</button>
-                        <button onClick={onCancel} className="bg-gray-200 text-gray-800 px-4 py-2 rounded font-bold hover:bg-gray-300">Ø¥ÙØºØ§Ø¡</button>
+                        <button onClick={onConfirm} className="bg-red-600 text-white px-4 py-2 rounded font-bold hover:bg-red-700">نعم، نفذ</button>
+                        <button onClick={onCancel} className="bg-gray-200 text-gray-800 px-4 py-2 rounded font-bold hover:bg-gray-300">إلغاء</button>
                     </div>
                 </div>
             </div>
@@ -139,7 +139,7 @@
 
         function Login({ onLogin }) {
             const [p, setP] = useState('');
-            return <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4"><div className="bg-white rounded-2xl p-8 w-full max-w-md text-center"><Icons.Lock size={48} className="mx-auto mb-4 text-slate-700"/><h2 className="text-2xl font-bold mb-6">Cash Count V19</h2><input type="password" value={p} onChange={e=>setP(e.target.value)} className="w-full text-center text-2xl border-2 rounded-lg py-2 mb-4" placeholder="****" autoFocus/><button onClick={()=>p===APP_PIN?onLogin():alert('Ø®Ø·Ø£')} className="w-full bg-slate-800 text-white font-bold py-3 rounded-lg">Ø¯Ø®ÙÙ</button></div></div>;
+            return <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4"><div className="bg-white rounded-2xl p-8 w-full max-w-md text-center"><Icons.Lock size={48} className="mx-auto mb-4 text-slate-700"/><h2 className="text-2xl font-bold mb-6">Cash Count V19</h2><input type="password" value={p} onChange={e=>setP(e.target.value)} className="w-full text-center text-2xl border-2 rounded-lg py-2 mb-4" placeholder="****" autoFocus/><button onClick={()=>p===APP_PIN?onLogin():alert('خطأ')} className="w-full bg-slate-800 text-white font-bold py-3 rounded-lg">دخول</button></div></div>;
         }
 
         function App() {
@@ -199,7 +199,7 @@
                     newVault = updateVaultBalance(newVault, updatedT, false);
                     newTransList = newTransList.map(t => t.id === editingTrans.id ? updatedT : t);
                     setEditingTrans(null);
-                    alert("ØªÙ Ø­ÙØ¸ Ø§ÙØªØ¹Ø¯ÙÙ");
+                    alert("تم حفظ التعديل");
                 } else {
                     const t = { ...data, id: getNextId(newTransList), date: new Date().toISOString(), tellerName: teller };
                     newVault = updateVaultBalance(newVault, t, false);
@@ -212,7 +212,7 @@
             // VOID
             const requestVoid = (t) => {
                 setModalConfig({
-                    message: `ÙÙ Ø£ÙØª ÙØªØ£ÙØ¯ ÙÙ Ø¥ÙØºØ§Ø¡ Ø§ÙÙØ¹Ø§ÙÙØ© Ø±ÙÙ ${t.id}Ø\nØ³ÙØªÙ Ø¹ÙØ³ Ø§ÙØªØ£Ø«ÙØ± Ø§ÙÙØ§ÙÙ ÙØªØºÙÙØ± Ø§ÙØ­Ø§ÙØ©.`,
+                    message: `هل أنت متأكد من إلغاء المعاملة رقم ${t.id}؟\nسيتم عكس التأثير المالي وتغيير الحالة.`,
                     action: () => executeVoid(t)
                 });
             };
@@ -223,7 +223,7 @@
                 const updatedList = trans.map(tr => 
                     tr.id === t.id ? { 
                         ...tr, status: 'VOID', voidDate: new Date().toISOString(),
-                        auditNotes: tr.auditNotes ? `${tr.auditNotes}\n[${new Date().toLocaleTimeString()}] ØªÙ Ø§ÙØ¥ÙØºØ§Ø¡ (VOID)` : `[${new Date().toLocaleTimeString()}] ØªÙ Ø§ÙØ¥ÙØºØ§Ø¡ (VOID)`
+                        auditNotes: tr.auditNotes ? `${tr.auditNotes}\n[${new Date().toLocaleTimeString()}] تم الإلغاء (VOID)` : `[${new Date().toLocaleTimeString()}] تم الإلغاء (VOID)`
                     } : tr
                 );
                 setTrans(updatedList);
@@ -236,7 +236,7 @@
             };
             const restore = (e) => {
                 const f = e.target.files[0]; if(!f) return;
-                const r = new FileReader(); r.onload=ev=>{ try{ const d=JSON.parse(ev.target.result); if(d.vault && d.trans){ if(confirm('Ø§Ø³ØªØ±Ø¬Ø§Ø¹Ø')) { setVault(d.vault); setTrans(d.trans); if(d.teller) setTeller(d.teller); alert('ØªÙ!'); } } }catch{alert('ÙÙÙ Ø®Ø·Ø£')} }; r.readAsText(f); e.target.value=null;
+                const r = new FileReader(); r.onload=ev=>{ try{ const d=JSON.parse(ev.target.result); if(d.vault && d.trans){ if(confirm('استرجاع؟')) { setVault(d.vault); setTrans(d.trans); if(d.teller) setTeller(d.teller); alert('تم!'); } } }catch{alert('ملف خطأ')} }; r.readAsText(f); e.target.value=null;
             };
 
             return (
@@ -248,23 +248,23 @@
                             <div className="flex items-center gap-2 font-bold text-xl mb-2 md:mb-0"><Icons.Coins className="text-yellow-500"/> Cash Count</div>
                             <div className="flex items-center gap-4">
                                 <div className="bg-slate-800 px-3 py-1 rounded flex items-center gap-2 border border-slate-600">
-                                    <Icons.User size={16}/><input value={teller} onChange={e=>setTeller(e.target.value)} placeholder="Ø§Ø³Ù Ø§ÙØªÙÙØ±" className="bg-transparent border-none text-white w-32 focus:outline-none font-bold text-sm"/>
+                                    <Icons.User size={16}/><input value={teller} onChange={e=>setTeller(e.target.value)} placeholder="اسم التيلر" className="bg-transparent border-none text-white w-32 focus:outline-none font-bold text-sm"/>
                                 </div>
-                                <button onClick={()=>{setAuth(false);sessionStorage.removeItem('auth')}} className="text-red-400 text-xs border border-red-900 px-2 py-1 rounded">Ø®Ø±ÙØ¬</button>
+                                <button onClick={()=>{setAuth(false);sessionStorage.removeItem('auth')}} className="text-red-400 text-xs border border-red-900 px-2 py-1 rounded">خروج</button>
                             </div>
                             <div className="flex gap-2 mt-2 md:mt-0">
                                 {['calc','multi','vault','hist'].map(v => <button key={v} onClick={()=>{setView(v); setEditingTrans(null)}} className={`px-3 py-1 rounded text-sm font-bold flex gap-1 items-center ${view===v?'bg-yellow-500 text-black':'text-gray-300'}`}>
-                                    {v==='calc'?<><Icons.Calculator size={14}/> Ø¹ÙÙÙØ§Øª</>:v==='multi'?<><Icons.Layers size={14}/> Ø¥ÙØ¯Ø§Ø¹Ø§Øª ÙØªØ¹Ø¯Ø¯Ø©</>:v==='vault'?<><Icons.Wallet size={14}/> Ø®Ø²ÙÙØ©</>:<><Icons.RefreshCcw size={14}/> Ø³Ø¬Ù</>}
+                                    {v==='calc'?<><Icons.Calculator size={14}/> عمليات</>:v==='multi'?<><Icons.Layers size={14}/> إيداعات متعددة</>:v==='vault'?<><Icons.Wallet size={14}/> خزينة</>:<><Icons.RefreshCcw size={14}/> سجل</>}
                                 </button>)}
                             </div>
                         </div>
                     </nav>
                     <main className="max-w-7xl mx-auto px-4 py-6">
                         <div className="bg-white p-2 rounded shadow mb-4 flex justify-between items-center text-sm">
-                            <span className="flex gap-1 text-gray-500"><Icons.AlertTriangle size={16} className="text-yellow-600"/> Ø§Ø­ÙØ¸ Backup ÙÙÙÙØ§Ù</span>
+                            <span className="flex gap-1 text-gray-500"><Icons.AlertTriangle size={16} className="text-yellow-600"/> احفظ Backup يومياً</span>
                             <div className="flex gap-2">
-                                <button onClick={backup} className="flex gap-1 px-2 py-1 bg-blue-50 text-blue-700 rounded border border-blue-200"><Icons.Download size={14}/> Ø­ÙØ¸</button>
-                                <button onClick={()=>fileRef.current.click()} className="flex gap-1 px-2 py-1 bg-gray-50 text-gray-700 rounded border border-gray-300"><Icons.Upload size={14}/> Ø§Ø³ØªØ±Ø¬Ø§Ø¹</button>
+                                <button onClick={backup} className="flex gap-1 px-2 py-1 bg-blue-50 text-blue-700 rounded border border-blue-200"><Icons.Download size={14}/> حفظ</button>
+                                <button onClick={()=>fileRef.current.click()} className="flex gap-1 px-2 py-1 bg-gray-50 text-gray-700 rounded border border-gray-300"><Icons.Upload size={14}/> استرجاع</button>
                                 <input type="file" ref={fileRef} onChange={restore} className="hidden"/>
                             </div>
                         </div>
@@ -297,7 +297,7 @@
                 let msgs = [];
                 Object.entries(out).forEach(([d, amount]) => {
                     const avail = (vault[curr][d] || 0) + (inp[d] || 0);
-                    if (amount > avail) msgs.push(`Ø¹Ø¬Ø² ÙØ¦Ø© ${d}`);
+                    if (amount > avail) msgs.push(`عجز فئة ${d}`);
                 });
                 setWarnMsg(msgs.join(', '));
             }, [out, inp, vault, curr]);
@@ -321,34 +321,34 @@
                 <div className="grid lg:grid-cols-12 gap-6 items-start">
                     <div className="lg:col-span-8 space-y-4">
                         <div className={`bg-white p-3 rounded shadow border-t-4 ${editingData ? 'border-orange-500' : 'border-yellow-500'} flex justify-between`}>
-                            <h2 className="font-bold text-lg">{editingData ? `ØªØ¹Ø¯ÙÙ #${editingData.id}` : 'Ø¹ÙÙÙØ© Ø¹ÙÙÙ'}</h2>
+                            <h2 className="font-bold text-lg">{editingData ? `تعديل #${editingData.id}` : 'عملية عميل'}</h2>
                             <div className="flex gap-2">
-                                {editingData && <button onClick={cancelEdit} className="bg-gray-200 px-3 py-1 rounded text-sm font-bold">Ø¥ÙØºØ§Ø¡</button>}
+                                {editingData && <button onClick={cancelEdit} className="bg-gray-200 px-3 py-1 rounded text-sm font-bold">إلغاء</button>}
                                 <select value={curr} onChange={e=>{setCurr(e.target.value); reset()}} className="border p-1 rounded font-bold" disabled={!!editingData}>{Object.keys(CURRENCIES).map(c=><option key={c} value={c}>{CURRENCIES[c].name}</option>)}</select>
                             </div>
                         </div>
-                        <Denom title="1. ÙÙØ¯ÙØ© ÙØ§Ø±Ø¯Ø© (In)" c={curr} val={inp} set={setInp} clr="blue"/>
-                        <List title="2. Ø´ÙÙØ§Øª" items={chks} set={setChks} icon="file-spreadsheet"/>
-                        <List title="3. ÙØ³Ø§Ø¦Ù Ø¥ÙØ¯Ø§Ø¹" items={slips} set={setSlips} icon="save" bg="bg-green-50"/>
-                        <Denom title="4. ÙÙØ¯ÙØ© Ø®Ø§Ø±Ø¬Ø© (Out)" c={curr} val={out} set={setOut} clr="red" vault={vault} cashIn={inp} />
+                        <Denom title="1. نقدية واردة (In)" c={curr} val={inp} set={setInp} clr="blue"/>
+                        <List title="2. شيكات" items={chks} set={setChks} icon="file-spreadsheet"/>
+                        <List title="3. قسائم إيداع" items={slips} set={setSlips} icon="save" bg="bg-green-50"/>
+                        <Denom title="4. نقدية خارجة (Out)" c={curr} val={out} set={setOut} clr="red" vault={vault} cashIn={inp} />
                     </div>
                     <div className="lg:col-span-4 space-y-3 sticky top-20">
                         <div className="bg-white p-4 rounded shadow text-center">
-                            <h3 className="font-bold border-b mb-2">Ø§ÙÙÙØ®Øµ</h3>
-                            <div className="flex justify-between text-sm"><span>ÙØ§Ø±Ø¯:</span><b>{fmtNum(totIn)}</b></div>
-                            <div className="flex justify-between text-sm"><span>Ø´ÙÙØ§Øª:</span><b>{fmtNum(totChks)}</b></div>
-                            <div className="flex justify-between font-bold border-t mt-1 pt-1"><span>Ø§ÙÙØ³ØªÙÙ:</span><span>{fmtNum(totIn+totChks)}</span></div>
-                            <div className="flex justify-between text-sm text-blue-600 mt-2"><span>Ø§ÙÙØ·ÙÙØ¨:</span><b>{fmtNum(totSlips)}</b></div>
-                            <div className="flex justify-between text-sm text-red-600"><span>Ø§ÙÙØ±ØªØ¬Ø¹:</span><b>{fmtNum(totOut)}</b></div>
+                            <h3 className="font-bold border-b mb-2">الملخص</h3>
+                            <div className="flex justify-between text-sm"><span>وارد:</span><b>{fmtNum(totIn)}</b></div>
+                            <div className="flex justify-between text-sm"><span>شيكات:</span><b>{fmtNum(totChks)}</b></div>
+                            <div className="flex justify-between font-bold border-t mt-1 pt-1"><span>المستلم:</span><span>{fmtNum(totIn+totChks)}</span></div>
+                            <div className="flex justify-between text-sm text-blue-600 mt-2"><span>المطلوب:</span><b>{fmtNum(totSlips)}</b></div>
+                            <div className="flex justify-between text-sm text-red-600"><span>المرتجع:</span><b>{fmtNum(totOut)}</b></div>
                             <hr className="my-2"/>
                             <div className={`text-3xl font-black my-2 ${Math.abs(variance)<0.01?'text-green-600':variance>0?'text-yellow-600':'text-red-600'}`}>{fmtCurr(variance,'')}</div>
-                            <div className="font-bold text-sm">{Math.abs(variance)<0.01?'â ÙØªØ·Ø§Ø¨Ù':variance>0?'â ï¸ Ø²ÙØ§Ø¯Ø©':'â Ø¹Ø¬Ø²'}</div>
+                            <div className="font-bold text-sm">{Math.abs(variance)<0.01?'✅ متطابق':variance>0?'⚠️ زيادة':'⛔ عجز'}</div>
                         </div>
                         <div className="grid grid-cols-2 gap-2">
-                            <button onClick={()=>onPrint(getPayload('ÙØ³ÙØ¯Ø©'))} className="py-2 bg-gray-600 text-white rounded font-bold flex justify-center gap-1"><Icons.Printer size={18}/> Ø·Ø¨Ø§Ø¹Ø©</button>
-                            <button onClick={()=>{setModalConfig({message:"ÙÙ Ø£ÙØª ÙØªØ£ÙØ¯ ÙÙ ØªÙØ±ÙØº Ø§ÙØ¨ÙØ§ÙØ§ØªØ", action: reset})}} className="py-2 bg-red-100 text-red-700 rounded font-bold flex justify-center gap-1"><Icons.Trash2 size={18}/> ØªÙØ±ÙØº</button>
+                            <button onClick={()=>onPrint(getPayload('مسودة'))} className="py-2 bg-gray-600 text-white rounded font-bold flex justify-center gap-1"><Icons.Printer size={18}/> طباعة</button>
+                            <button onClick={()=>{setModalConfig({message:"هل أنت متأكد من تفريغ البيانات؟", action: reset})}} className="py-2 bg-red-100 text-red-700 rounded font-bold flex justify-center gap-1"><Icons.Trash2 size={18}/> تفريغ</button>
                         </div>
-                        <button onClick={()=>{if(!totIn&&!totChks&&!totSlips&&!totOut)return alert('ÙØ§Ø±Øº'); onProcess(getPayload('TEMP')); if(!editingData) reset()}} className={`w-full py-3 ${editingData?'bg-orange-600':'bg-slate-900'} text-white font-bold rounded shadow flex justify-center gap-2`}><Icons.Save size={20}/> {editingData?'Ø­ÙØ¸ Ø§ÙØªØ¹Ø¯ÙÙ':'Ø­ÙØ¸'}</button>
+                        <button onClick={()=>{if(!totIn&&!totChks&&!totSlips&&!totOut)return alert('فارغ'); onProcess(getPayload('TEMP')); if(!editingData) reset()}} className={`w-full py-3 ${editingData?'bg-orange-600':'bg-slate-900'} text-white font-bold rounded shadow flex justify-center gap-2`}><Icons.Save size={20}/> {editingData?'حفظ التعديل':'حفظ'}</button>
                     </div>
                 </div>
             );
@@ -394,7 +394,7 @@
                 let msgs = [];
                 Object.entries(out).forEach(([d, amount]) => {
                     const avail = (vault[curr][d] || 0) + (inp[d] || 0);
-                    if (amount > avail) msgs.push(`Ø¹Ø¬Ø² ÙØ¦Ø© ${d}`);
+                    if (amount > avail) msgs.push(`عجز فئة ${d}`);
                 });
                 setWarnMsg(msgs.join(', '));
             }, [out, inp, vault, curr]);
@@ -426,23 +426,23 @@
                 <div className="grid lg:grid-cols-12 gap-6 items-start">
                     <div className="lg:col-span-8 space-y-4">
                         <div className={`bg-white p-3 rounded shadow border-t-4 border-purple-500 flex justify-between`}>
-                            <h2 className="font-bold text-lg">{editingData ? `ØªØ¹Ø¯ÙÙ Ø¥ÙØ¯Ø§Ø¹Ø§Øª ÙØªØ¹Ø¯Ø¯Ø© #${editingData.id}` : 'Ø¥ÙØ¯Ø§Ø¹Ø§Øª ÙØªØ¹Ø¯Ø¯Ø©'}</h2>
+                            <h2 className="font-bold text-lg">{editingData ? `تعديل إيداعات متعددة #${editingData.id}` : 'إيداعات متعددة'}</h2>
                             <div className="flex gap-2">
-                                {editingData && <button onClick={cancelEdit} className="bg-gray-200 px-3 py-1 rounded text-sm font-bold">Ø¥ÙØºØ§Ø¡</button>}
+                                {editingData && <button onClick={cancelEdit} className="bg-gray-200 px-3 py-1 rounded text-sm font-bold">إلغاء</button>}
                                 <select value={curr} onChange={e=>{setCurr(e.target.value); reset()}} className="border p-1 rounded font-bold" disabled={!!editingData}>{Object.keys(CURRENCIES).map(c=><option key={c} value={c}>{CURRENCIES[c].name}</option>)}</select>
                             </div>
                         </div>
                         
-                        <Denom title="1. ÙÙØ¯ÙØ© ÙØ³ØªÙÙØ© ÙØ¹ÙÙØ§Ù (Physical In)" c={curr} val={inp} set={setInp} clr="blue"/>
-                        <List title="2. Ø´ÙÙØ§Øª" items={chks} set={setChks} icon="file-spreadsheet"/>
+                        <Denom title="1. نقدية مستلمة فعلياً (Physical In)" c={curr} val={inp} set={setInp} clr="blue"/>
+                        <List title="2. شيكات" items={chks} set={setChks} icon="file-spreadsheet"/>
                         
                         <div className="bg-white p-3 rounded shadow border border-purple-200">
-                            <List title="3. ÙØ³Ø§Ø¦Ù Ø§ÙØ¥ÙØ¯Ø§Ø¹ (Values)" items={slips} set={setSlips} icon="layers" bg="bg-purple-50"/>
+                            <List title="3. قسائم الإيداع (Values)" items={slips} set={setSlips} icon="layers" bg="bg-purple-50"/>
                             {slips.length > 0 && (
                                 <div className="mt-2 space-y-2">
                                     {slips.map((s, idx) => (
                                         <div key={s.id} className="text-xs bg-gray-50 p-2 rounded border flex justify-between items-center">
-                                            <span className="font-bold text-purple-700">Ø¥ÙØ¯Ø§Ø¹ #{idx+1}: {fmtNum(s.a)}</span>
+                                            <span className="font-bold text-purple-700">إيداع #{idx+1}: {fmtNum(s.a)}</span>
                                             <div className="flex flex-wrap gap-1">
                                                 {sortDenoms(getSystemBreakdown(s.a)).map(([d,c]) => (
                                                     <span key={d} className="bg-white border px-1 rounded shadow-sm">{d}: <b>{c}</b></span>
@@ -454,19 +454,19 @@
                             )}
                         </div>
 
-                        <Denom title="4. ÙÙØ¯ÙØ© Ø®Ø§Ø±Ø¬Ø© (Physical Out)" c={curr} val={out} set={setOut} clr="red" vault={vault} cashIn={inp}/>
+                        <Denom title="4. نقدية خارجة (Physical Out)" c={curr} val={out} set={setOut} clr="red" vault={vault} cashIn={inp}/>
                         
                         {totIn > 0 && totSlips > 0 && (
                             <div className="bg-white p-3 rounded shadow border-t-4 border-gray-500">
-                                <h3 className="font-bold text-sm mb-2 text-indigo-700">Ø¬Ø¯ÙÙ ØªØ³ÙÙØ© Ø§ÙÙØ¦Ø§Øª (Ø§ÙØµØ§ÙÙ Ø§ÙÙØ¹ÙÙ ÙØ¹ Ø¥Ø¶Ø§ÙØ© ÙØ¦Ø§Øª Ø§ÙØ´ÙÙ Ø§ÙÙØ®ØµÙÙØ©)</h3>
+                                <h3 className="font-bold text-sm mb-2 text-indigo-700">جدول تسوية الفئات (الصافي الفعلي مع إضافة فئات الشيك المخصومة)</h3>
                                 <table className="w-full text-center text-xs border">
-                                    <thead className="bg-gray-100"><tr><th>Ø§ÙÙØ¦Ø©</th><th>Ø§ÙÙØ±Ù (Action)</th></tr></thead>
+                                    <thead className="bg-gray-100"><tr><th>الفئة</th><th>الفرق (Action)</th></tr></thead>
                                     <tbody>
                                         {sortDenoms(comparisonData).map(([d, diff]) => {
                                             if (diff === 0) return null;
                                             return <tr key={d} className="border-t">
                                                 <td className="font-bold">{d}</td>
-                                                <td className={`font-bold ${diff<0?'text-red-600':'text-green-600'}`}>{diff > 0 ? `+${diff} (ÙØ§Ø¦Ø¶ ÙØ¹Ù)` : `${diff} (Ø¹Ø¬Ø²/ÙØ·ÙÙØ¨)`}</td>
+                                                <td className={`font-bold ${diff<0?'text-red-600':'text-green-600'}`}>{diff > 0 ? `+${diff} (فائض معك)` : `${diff} (عجز/مطلوب)`}</td>
                                             </tr>
                                         })}
                                     </tbody>
@@ -477,23 +477,23 @@
 
                     <div className="lg:col-span-4 space-y-3 sticky top-20">
                         <div className="bg-white p-4 rounded shadow text-center">
-                            <h3 className="font-bold border-b mb-2">ÙÙØ®Øµ Ø§ÙØ¹ÙÙÙØ©</h3>
-                            <div className="flex justify-between text-sm"><span>Ø¥Ø¬ÙØ§ÙÙ Ø§ÙÙØ¹ÙÙ (In):</span><b>{fmtNum(totIn)}</b></div>
-                            <div className="flex justify-between text-sm"><span>Ø¥Ø¬ÙØ§ÙÙ Ø§ÙØ¥ÙØ¯Ø§Ø¹Ø§Øª:</span><b>{fmtNum(totSlips)}</b></div>
-                            <div className="flex justify-between text-sm text-red-600"><span>Ø§ÙÙØ±ØªØ¬Ø¹ (Out):</span><b>{fmtNum(totOut)}</b></div>
+                            <h3 className="font-bold border-b mb-2">ملخص العملية</h3>
+                            <div className="flex justify-between text-sm"><span>إجمالي الفعلي (In):</span><b>{fmtNum(totIn)}</b></div>
+                            <div className="flex justify-between text-sm"><span>إجمالي الإيداعات:</span><b>{fmtNum(totSlips)}</b></div>
+                            <div className="flex justify-between text-sm text-red-600"><span>المرتجع (Out):</span><b>{fmtNum(totOut)}</b></div>
                             <hr className="my-2"/>
                             <div className={`text-3xl font-black my-2 ${Math.abs(variance)<0.01?'text-green-600':variance>0?'text-yellow-600':'text-red-600'}`}>{fmtCurr(variance,'')}</div>
-                            <div className="font-bold text-sm">{Math.abs(variance)<0.01?'â ÙØªØ·Ø§Ø¨Ù':variance>0?'â ï¸ Ø²ÙØ§Ø¯Ø©':'â Ø¹Ø¬Ø²'}</div>
+                            <div className="font-bold text-sm">{Math.abs(variance)<0.01?'✅ متطابق':variance>0?'⚠️ زيادة':'⛔ عجز'}</div>
                         </div>
                         <div className="grid grid-cols-2 gap-2">
-                            <button onClick={()=>onPrint(getPayload('ÙØ³ÙØ¯Ø©'))} className="py-2 bg-gray-600 text-white rounded font-bold flex justify-center gap-1"><Icons.Printer size={18}/> Ø·Ø¨Ø§Ø¹Ø©</button>
-                            <button onClick={()=>{setModalConfig({message:"ÙÙ Ø£ÙØª ÙØªØ£ÙØ¯ ÙÙ ØªÙØ±ÙØº Ø§ÙØ¨ÙØ§ÙØ§ØªØ", action: reset})}} className="py-2 bg-red-100 text-red-700 rounded font-bold flex justify-center gap-1"><Icons.Trash2 size={18}/> ØªÙØ±ÙØº</button>
+                            <button onClick={()=>onPrint(getPayload('مسودة'))} className="py-2 bg-gray-600 text-white rounded font-bold flex justify-center gap-1"><Icons.Printer size={18}/> طباعة</button>
+                            <button onClick={()=>{setModalConfig({message:"هل أنت متأكد من تفريغ البيانات؟", action: reset})}} className="py-2 bg-red-100 text-red-700 rounded font-bold flex justify-center gap-1"><Icons.Trash2 size={18}/> تفريغ</button>
                         </div>
                         <button onClick={()=>{
-                            if(!totIn&&!totChks&&!totSlips&&!totOut)return alert('ÙØ§Ø±Øº'); 
+                            if(!totIn&&!totChks&&!totSlips&&!totOut)return alert('فارغ'); 
                             onProcess(getPayload('TEMP')); 
                             if(!editingData) reset();
-                        }} className="w-full py-3 bg-purple-600 text-white font-bold rounded shadow flex justify-center gap-2"><Icons.Save size={20}/> {editingData?'Ø­ÙØ¸ Ø§ÙØªØ¹Ø¯ÙÙ':'Ø­ÙØ¸'}</button>
+                        }} className="w-full py-3 bg-purple-600 text-white font-bold rounded shadow flex justify-center gap-2"><Icons.Save size={20}/> {editingData?'حفظ التعديل':'حفظ'}</button>
                     </div>
                 </div>
             );
@@ -513,10 +513,10 @@
                 if (mode === 'EXCHANGE') {
                     const srcTot = Object.entries(exSource).reduce((s,[d,c])=>s+(d*c),0);
                     const tgtTot = Object.entries(exTarget).reduce((s,[d,c])=>s+(d*c),0);
-                    if(Math.abs(srcTot - tgtTot) > 0.01) return alert(`Ø®Ø·Ø£: Ø§ÙÙÙÙ ØºÙØ± ÙØªØ³Ø§ÙÙØ©`);
+                    if(Math.abs(srcTot - tgtTot) > 0.01) return alert(`خطأ: القيم غير متساوية`);
                     
                     for (const [d, count] of Object.entries(exSource)) {
-                        if (count > (vault[c][d] || 0)) return alert(`Ø¹ÙÙØ§ÙØ Ø±ØµÙØ¯ ÙØ¦Ø© ${d} ØºÙØ± ÙØ§ÙÙ`);
+                        if (count > (vault[c][d] || 0)) return alert(`عفواً، رصيد فئة ${d} غير كافٍ`);
                     }
 
                     onProcess({
@@ -526,7 +526,7 @@
                         cashOutBreakdown: exSource, totalCashOut: srcTot, 
                         checks:[], totalChecks:0, deposits:[], totalDepositsRequired:0, variance:0
                     });
-                    alert("ØªÙ ØªØºÙÙØ± Ø§ÙÙØ¦Ø§Øª Ø¨ÙØ¬Ø§Ø­");
+                    alert("تم تغيير الفئات بنجاح");
                 } else {
                     onProcess({
                         type: mode, currency: c,
@@ -534,7 +534,7 @@
                         cashOutBreakdown: mode==='CASH_OUT'?temp:{}, totalCashOut: mode==='CASH_OUT'?Object.entries(temp).reduce((s,[d,c])=>s+(d*c),0):0,
                         checks:[], totalChecks:0, deposits:[], totalDepositsRequired:0, variance:0
                     });
-                    alert("ØªÙØª Ø§ÙØ¹ÙÙÙØ©");
+                    alert("تمت العملية");
                 }
                 setMode(null); setTemp({}); setExSource({}); setExTarget({});
             };
@@ -542,7 +542,7 @@
             return (
                 <div className="space-y-6">
                     <div className="bg-white p-4 rounded shadow flex flex-wrap justify-between items-center gap-2">
-                        <h2 className="font-bold text-lg">Ø§ÙØ®Ø²ÙÙØ©</h2>
+                        <h2 className="font-bold text-lg">الخزينة</h2>
                         <div className="flex gap-2 flex-wrap">
                             <select value={c} onChange={e=>setC(e.target.value)} className="border p-1 rounded font-bold">{Object.keys(CURRENCIES).map(k=><option key={k} value={k}>{CURRENCIES[k].name}</option>)}</select>
                             <button onClick={()=>{setMode('CASH_IN');setTemp({})}} className="bg-green-600 text-white px-3 py-1 rounded font-bold text-sm flex gap-1"><Icons.ArrowDown size={16}/> Cash In</button>
@@ -553,12 +553,12 @@
                     <div className="grid md:grid-cols-2 gap-4">
                         <div className="bg-white rounded shadow overflow-hidden">
                             <table className="w-full text-center text-sm">
-                                <thead className="bg-slate-800 text-white"><tr><th>Ø§ÙÙØ¦Ø©</th><th>Ø§ÙØ¹Ø¯Ø¯</th><th>Ø§ÙÙÙÙØ©</th></tr></thead>
+                                <thead className="bg-slate-800 text-white"><tr><th>الفئة</th><th>العدد</th><th>القيمة</th></tr></thead>
                                 <tbody>{sortDenoms(CURRENCIES[c].denominations.reduce((acc, d) => ({...acc, [d]: 0}), {})).map(([d])=><tr key={d} className="border-b"><td className="font-bold">{d}</td><td>{fmtNum(vault[c][d]||0)}</td><td className="text-gray-500">{fmtNum((vault[c][d]||0)*d)}</td></tr>)}</tbody>
-                                <tfoot className="bg-gray-100 font-bold"><tr><td colSpan="2">Ø§ÙØ¥Ø¬ÙØ§ÙÙ</td><td className="text-blue-700">{fmtCurr(curTot,c)}</td></tr></tfoot>
+                                <tfoot className="bg-gray-100 font-bold"><tr><td colSpan="2">الإجمالي</td><td className="text-blue-700">{fmtCurr(curTot,c)}</td></tr></tfoot>
                             </table>
                         </div>
-                        <div className="bg-blue-50 p-6 rounded border border-blue-200 h-fit"><h3 className="font-bold text-blue-900 mb-2">Ø§ÙØ±ØµÙØ¯ Ø§ÙÙØ¹ÙÙ</h3><div className="text-3xl font-bold text-blue-700">{fmtCurr(curTot,c)}</div></div>
+                        <div className="bg-blue-50 p-6 rounded border border-blue-200 h-fit"><h3 className="font-bold text-blue-900 mb-2">الرصيد الفعلي</h3><div className="text-3xl font-bold text-blue-700">{fmtCurr(curTot,c)}</div></div>
                     </div>
                     
                     {mode && <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50 p-4">
@@ -566,12 +566,12 @@
                             <div className="bg-slate-800 text-white p-3 font-bold flex justify-between"><span>{mode} - {c}</span><button onClick={()=>setMode(null)}><Icons.X/></button></div>
                             <div className="max-h-[70vh] overflow-y-auto p-4">
                                 {mode === 'EXCHANGE' ? <div className="grid grid-cols-2 gap-4">
-                                    <div><h4 className="text-center border-b mb-2 text-red-600 font-bold">ÙÙ (Source/Out)</h4><Denom title="" c={c} val={exSource} set={setExSource} clr="red" simple={true}/><div className="text-center font-bold"></div></div>
-                                    <div><h4 className="text-center border-b mb-2 text-green-600 font-bold">Ø¥ÙÙ (Target/In)</h4><Denom title="" c={c} val={exTarget} set={setExTarget} clr="green" simple={true}/><div className="text-center font-bold"></div></div>
+                                    <div><h4 className="text-center border-b mb-2 text-red-600 font-bold">من (Source/Out)</h4><Denom title="" c={c} val={exSource} set={setExSource} clr="red" simple={true}/><div className="text-center font-bold"></div></div>
+                                    <div><h4 className="text-center border-b mb-2 text-green-600 font-bold">إلى (Target/In)</h4><Denom title="" c={c} val={exTarget} set={setExTarget} clr="green" simple={true}/><div className="text-center font-bold"></div></div>
                                 </div> : <Denom title="" c={c} val={temp} set={setTemp} clr={mode==='CASH_IN'?'green':'orange'} simple={true}/>}
                             </div>
                             <div className="bg-gray-100 p-3 flex justify-between items-center">
-                                <button onClick={commit} className="px-4 py-2 bg-slate-800 text-white font-bold rounded">ØªØ£ÙÙØ¯</button>
+                                <button onClick={commit} className="px-4 py-2 bg-slate-800 text-white font-bold rounded">تأكيد</button>
                             </div>
                         </div>
                     </div>}
@@ -598,19 +598,19 @@
             };
             return (
                 <div className="space-y-4">
-                    <div className="flex justify-between bg-white p-3 rounded shadow"><h2 className="font-bold text-lg">Ø§ÙØ³Ø¬Ù</h2><button onClick={exp} className="bg-green-600 text-white px-3 py-1 rounded font-bold text-sm flex gap-1"><Icons.FileSpreadsheet size={16}/> Excel</button></div>
+                    <div className="flex justify-between bg-white p-3 rounded shadow"><h2 className="font-bold text-lg">السجل</h2><button onClick={exp} className="bg-green-600 text-white px-3 py-1 rounded font-bold text-sm flex gap-1"><Icons.FileSpreadsheet size={16}/> Excel</button></div>
                     <div className="bg-white rounded shadow overflow-x-auto">
                         <table className="w-full text-right whitespace-nowrap text-sm">
-                            <thead className="bg-gray-100"><tr><th className="p-2">#</th><th className="p-2">ÙÙØ¹</th><th className="p-2">ØªÙÙØ±</th><th className="p-2">ØªØ§Ø±ÙØ®</th><th className="p-2">In</th><th className="p-2">Out</th><th className="p-2">ÙÙØ§Ø­Ø¸Ø§Øª</th><th className="p-2">Ø³Ø¬Ù Ø§ÙØªØ¹Ø¯ÙÙØ§Øª</th><th className="p-2"></th></tr></thead>
+                            <thead className="bg-gray-100"><tr><th className="p-2">#</th><th className="p-2">نوع</th><th className="p-2">تيلر</th><th className="p-2">تاريخ</th><th className="p-2">In</th><th className="p-2">Out</th><th className="p-2">ملاحظات</th><th className="p-2">سجل التعديلات</th><th className="p-2"></th></tr></thead>
                             <tbody>{trans.map(t=><tr key={t.id} className={`border-b ${t.status==='VOID'?'bg-red-50 opacity-60':''}`}>
                                 <td className="p-2 font-mono">{t.id}</td>
-                                <td className="p-2 text-xs font-bold">{t.type} {t.auditNotes?<span className="text-blue-600 block">(ÙØ¹Ø¯Ù)</span>:''}</td>
+                                <td className="p-2 text-xs font-bold">{t.type} {t.auditNotes?<span className="text-blue-600 block">(معدل)</span>:''}</td>
                                 <td className="p-2">{t.tellerName}</td><td className="p-2">{fmtDate(t.date)}</td>
                                 <td className="p-2 text-green-700 font-bold">{t.totalCashIn>0?fmtNum(t.totalCashIn):'-'}</td>
                                 <td className="p-2 text-red-700 font-bold">{t.totalCashOut>0?fmtNum(t.totalCashOut):'-'}</td>
                                 <td className="p-2 text-xs max-w-[150px] truncate">
                                     {t.notes && <span className="text-red-500 block">{t.notes}</span>}
-                                    {t.status==='VOID' && <span className="text-red-600 font-bold">ÙÙØºØ§Ø©</span>}
+                                    {t.status==='VOID' && <span className="text-red-600 font-bold">ملغاة</span>}
                                 </td>
                                 <td className="p-2 audit-log max-w-[300px]">{t.auditNotes || '-'}</td>
                                 <td className="p-2 flex gap-1">
@@ -654,7 +654,7 @@
                                         {val[d] && <button onClick={()=>{const n={...val}; delete n[d]; set(n)}} className="absolute left-1 top-1 text-gray-400 hover:text-red-500"><Icons.XCircle size={16}/></button>}
                                     </div>
                                     <span className="w-20 text-left text-gray-500 font-mono">{val[d]>0?fmtNum(val[d]*d):'-'}</span>
-                                    {isError && <span className="text-[10px] text-red-500 absolute left-20 bg-white px-1 border border-red-200">ØºÙØ± ÙØªÙÙØ±!</span>}
+                                    {isError && <span className="text-[10px] text-red-500 absolute left-20 bg-white px-1 border border-red-200">غير متوفر!</span>}
                                 </div>
                             )
                         })}
@@ -672,7 +672,7 @@
                     <div className="flex justify-between mb-2 text-sm"><div className="flex gap-1 font-bold text-gray-700"><Icon name={icon} size={16}/>{title}</div><span className="bg-white px-1 border rounded font-mono">{fmtNum(tot)}</span></div>
                     <div className="flex gap-1 mb-2">
                         <div className="relative flex-1">
-                            <input type="number" className="w-full border rounded p-1 text-sm pr-6" value={v} onChange={e=>SV(e.target.value)} onKeyDown={e=>e.key==='Enter'&&add()} placeholder="Ø§ÙÙÙÙØ©" />
+                            <input type="number" className="w-full border rounded p-1 text-sm pr-6" value={v} onChange={e=>SV(e.target.value)} onKeyDown={e=>e.key==='Enter'&&add()} placeholder="القيمة" />
                             {v && <button onClick={()=>SV('')} className="absolute top-1 left-1 text-gray-400 hover:text-red-500"><Icons.XCircle size={16}/></button>}
                         </div>
                         <button onClick={add} className="bg-slate-700 text-white px-2 rounded"><Icons.Plus size={16}/></button>
