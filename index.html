@@ -139,7 +139,7 @@
 
         function Login({ onLogin }) {
             const [p, setP] = useState('');
-            return <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4"><div className="bg-white rounded-2xl p-8 w-full max-w-md text-center"><Icons.Lock size={48} className="mx-auto mb-4 text-slate-700"/><h2 className="text-2xl font-bold mb-6">Cash Count V19</h2><input type="password" value={p} onChange={e=>setP(e.target.value)} className="w-full text-center text-2xl border-2 rounded-lg py-2 mb-4" placeholder="****" autoFocus/><button onClick={()=>p===APP_PIN?onLogin():alert('خطأ')} className="w-full bg-slate-800 text-white font-bold py-3 rounded-lg">دخول</button></div></div>;
+            return <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4"><div className="bg-white rounded-2xl p-8 w-full max-w-md text-center"><Icons.Lock size={48} className="mx-auto mb-4 text-slate-700"/><h2 className="text-2xl font-bold mb-6">Cash Count </h2><input type="password" value={p} onChange={e=>setP(e.target.value)} className="w-full text-center text-2xl border-2 rounded-lg py-2 mb-4" placeholder="****" autoFocus/><button onClick={()=>p===APP_PIN?onLogin():alert('خطأ')} className="w-full bg-slate-800 text-white font-bold py-3 rounded-lg">دخول</button></div></div>;
         }
 
         function App() {
